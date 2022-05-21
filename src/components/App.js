@@ -15,7 +15,6 @@ const initialContacts = [
 
  function App () {
   const [contacts, setContact] = useState(initialContacts)
-  console.log(contacts)
   const [filter, setFilter] = useState('')
   
   useEffect(() => {
