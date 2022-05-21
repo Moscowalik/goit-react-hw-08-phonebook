@@ -19,7 +19,12 @@ export default function ContactForm ({addContact}){
           }
           const onSubmit = e => {
             e.preventDefault();
-        
+            const targetName = e.target.name.value;
+            const targetNumber = e.target.number.value
+            if(targetName === '' || targetNumber === ''){
+                alert('Необходимо заполнить все поля')
+                return
+            }
             const newContact = {
               id: uuidv4(),
               name,
@@ -37,9 +42,9 @@ export default function ContactForm ({addContact}){
                   return (
             <form onSubmit ={onSubmit}>
                 <h3>Name</h3>
-                <label><input type="text" name="name"  onChange={e =>{handleChange(e)}} /></label><br/>
+                <label><input type="text" name="name" value={name} onChange={e =>{handleChange(e)}} /></label><br/>
                 <h3>Number</h3>
-                <label><input type="tel" name="number"  onChange={e =>{handleChange(e)}} /></label><br/>
+                <label><input type="tel" name="number" value={number}  onChange={e =>{handleChange(e)}} /></label><br/>
                 <button type="submit" className="buttonForm">Add contact</button>
             </form>
         )
