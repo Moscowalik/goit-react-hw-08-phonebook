@@ -18,7 +18,7 @@ const ContactList = ({filteredContacts, onRemove}) => {
         filteredContacts.length > 0 && (
             <ul className="ContactsList">
                 {filteredContacts.map(({id, name, number}) => (
-                    <ContactListItem key={id} name={name} number={number} onClickRemove={() => onRemove(id)} />
+                    <ContactListItem key={id} name={name} number={number} onClickRemove={() => onRemove(id)}  />
                 ))}
             </ul>
         )
