@@ -1,65 +1,58 @@
-import { useState} from 'react';
+import { useAddContactMutation } from '../../redux/contactsSlice';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import PropTypes from 'prop-types';
 import './ContactForm.css';
-import { v4 as uuidv4 } from 'uuid';
 
+export default function ContactForm({ contacts }) {
+  const [createContact, { isLoading }] = useAddContactMutation();
 
-export default function ContactForm ({addContact}){
-    const [name, setName] = useState('');
-    const [number, setNumber] = useState('');
-
-    const handleChange = (e) => {
-        const name = e.target.name
-        if (name === 'name'){
-            setName(e.target.value)
-        }
-        if (name === 'number') {
-            setNumber(e.target.value)
-        }
-          }
-          const onSubmit = e => {
-            e.preventDefault();
-            const targetName = e.target.name.value;
-            const targetNumber = e.target.number.value
-            if(targetName === '' || targetNumber === ''){
-                alert('Необходимо заполнить все поля')
-                return
-            }
-            const newContact = {
-              id: uuidv4(),
-              name,
-              number,
-            };
-            addContact(newContact);
-            reset();
-          };
-        
-          const reset = () => {
-            setName('');
-            setNumber('');
-          };
-
-                  return (
-            <form onSubmit ={onSubmit}>
-                <h3>Name</h3>
-                <label><input type="text" name="name" value={name} onChange={e =>{handleChange(e)}} /></label><br/>
-                <h3>Number</h3>
-                <label><input type="tel" name="number" value={number}  onChange={e =>{handleChange(e)}} /></label><br/>
-                <button type="submit" className="buttonForm">Add contact</button>
-            </form>
-        )
+  const onSubmit = e => {
+    e.preventDefault();
+    const name = e.currentTarget.name.value;
+    const number = e.currentTarget.number.value;
+    const contactsName = contacts.map(contact => contact.name);
+    if (contactsName.includes(name)) {
+      return Notify.failure('This contact already exists');
     }
+    createContact({ name, number });
+    Notify.success('Adding  successfully');
 
+    e.currentTarget.reset();
+  };
 
-
-ContactForm.propTypes = {
-    contacts: PropTypes.arrayOf(
-        PropTypes.exact({
-            id: PropTypes.string.isRequired,
-            name: PropTypes.string.isRequired,
-            number: PropTypes.string.isRequired,
-        })
-    ),
-    addContact: PropTypes.func.isRequired,
+  return (
+    <form onSubmit={onSubmit}>
+      <h3>Name</h3>
+      <label>
+        Name{' '}
+        <input
+          type="text"
+          name="name"
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+          title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
+          required
+        />
+      </label>
+      <br />
+      <h3>Number</h3>
+      <label>
+        Number{' '}
+        <input
+          type="tel"
+          name="number"
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
+          required
+        />
+      </label>
+      <br />
+      <button type="submit" className="buttonForm">
+        {isLoading ? 'Adding...' : 'Add contact'}
+      </button>
+    </form>
+  );
 }
 
+ContactForm.propTypes = {
+  contacts: PropTypes.array,
+};
