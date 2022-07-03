@@ -18,7 +18,7 @@ const LoginPage = () => {
     if (isLogin) {
       navigate('/contacts');
     }
-  }, [isLogin]);
+  }, [navigate, isLogin]);
 
   const onLoginUser = data => {
     dispatch(loginUser(data));

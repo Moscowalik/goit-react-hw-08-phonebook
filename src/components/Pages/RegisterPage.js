@@ -18,7 +18,7 @@ const RegisterPage = () => {
     if (isLogin) {
       navigate('/contacts');
     }
-  }, [isLogin]);
+  }, [navigate, isLogin]);
 
   const registerUser = data => {
     console.log(data);
