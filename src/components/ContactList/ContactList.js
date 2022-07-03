@@ -1,48 +1,40 @@
-import React from 'react';
-import { useDeleteContactMutation } from '../../redux/contactsSlice';
 import PropTypes from 'prop-types';
 
-import './ContactList.css';
+import { ListGroup, CloseButton } from 'react-bootstrap';
 
-const ContactListItem = ({ name, number, id }) => {
-  const [deleteContact, { isLoading }] = useDeleteContactMutation();
-
-  return (
-    <li className="ContactListItem">
+const ContactList = ({ contacts, deleteContact }) => {
+  const elements = contacts.map(({ name, number, id }) => (
+    <ListGroup.Item
+      as="li"
+      key={id}
+      className="d-flex justify-content-between align-items-start"
+    >
       <p>
         {name}: {number}
       </p>
-      <button
-        type="button"
-        className="ContactsList-button"
-        onClick={() => deleteContact(id)}
-      >
-        {isLoading ? 'Deleting...' : 'Delete'}
-      </button>
-    </li>
-  );
-};
-
-const ContactList = ({ filteredContacts }) => {
+      <CloseButton onClick={() => deleteContact(id)} />
+    </ListGroup.Item>
+  ));
   return (
-    filteredContacts && (
-      <ul className="ContactsList">
-        {filteredContacts.map(({ id, name, number }) => (
-          <ContactListItem key={id} id={id} name={name} number={number} />
-        ))}
-      </ul>
-    )
+    <ListGroup as="ol" numbered className="">
+      {elements}
+    </ListGroup>
   );
 };
 
 export default ContactList;
 
-ContactListItem.propTypes = {
-  name: PropTypes.string.isRequired,
-  number: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
+ContactList.defaultProps = {
+  contacts: [],
 };
 
 ContactList.propTypes = {
-  contacts: PropTypes.array,
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+      id: PropTypes.string.isRequired,
+    })
+  ),
+  deleteContact: PropTypes.func.isRequired,
 };

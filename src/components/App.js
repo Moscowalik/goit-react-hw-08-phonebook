@@ -1,40 +1,49 @@
-import { useState } from 'react';
-import { useGetContactsQuery } from '../redux/contactsSlice';
-import ContactForm from './ContactForm';
-import Filter from './Filter';
-import ContactList from './ContactList';
-import './App.css';
+import { Navigate, Routes, Route } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { Spinner } from 'react-bootstrap';
 
-function App() {
-  const [filter, setFilter] = useState('');
-  const { data } = useGetContactsQuery();
-  console.log(useGetContactsQuery());
+import NavbarMenu from './NavbarMenu';
+import { currentUser } from '../redux/auth/authOperation';
+import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-  const changeFilter = e => {
-    setFilter(e.currentTarget.value);
-  };
+const HomePage = lazy(() => import('./Pages/HomePage'));
+const ContactsPage = lazy(() => import('./Pages/ContactsPage'));
+const RegisterPage = lazy(() => import('./Pages/RegisterPage'));
+const LoginPage = lazy(() => import('./Pages/LoginPage'));
 
-  const filteredContacts =
-    data &&
-    data.filter(({ name }) =>
-      name.toLowerCase().includes(filter.toLowerCase())
-    );
+const App = () => {
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(currentUser());
+  }, [dispatch]);
   return (
     <>
-      <div className="Container">
-        <section title="Phonebook" className="Section">
-          <h1>Phonebook</h1>
-          <ContactForm contacts={data} />
-        </section>
-        <section title="Contacts" className="Section">
-          <h2>Contacts</h2>
-          <Filter value={filter} onChangeFilter={changeFilter} />
-          <ContactList filteredContacts={filteredContacts} />
-        </section>
-      </div>
+      <NavbarMenu />
+      <Suspense
+        fallback={
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<HomePage />}></Route>
+          <Route element={<PrivateRoute />}>
+            <Route path="/contacts" element={<ContactsPage />}></Route>
+          </Route>
+          <Route element={<PublicRoute />}>
+            <Route path="/register" element={<RegisterPage />}></Route>
+            <Route path="/login" element={<LoginPage />}></Route>
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </>
   );
-}
+};
 
 export default App;
